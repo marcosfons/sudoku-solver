@@ -10,6 +10,40 @@ typedef struct quadrado {
   int possibilidades[9];
 } Quadrado;
 
+void swap(int valores[], int i, int j) {
+  int aux = valores[i];
+  valores[i] = valores[j];
+  valores[j] = aux;
+}
+
+void maisVezes(int tabuleiro[9][9], int vetor[9]) {
+  int aux[9];
+  int posMaior;
+  for(int i = 0; i < 9; i++) {
+    aux[i] = 0;
+    vetor[i] = i+1;
+  }
+  for(int i = 0; i < 9; i++) {
+    for(int j = 0; j < 9; j++) {
+      if(tabuleiro[i][j] != 0) {
+        aux[tabuleiro[i][j] - 1] += 1;
+      }
+    }
+  }
+
+  for(int i = 0; i < 9; i++) {
+    posMaior = i;
+    for(int j = i+1; j < 9; j++) {
+      if(aux[j] > aux[posMaior]) {
+        posMaior = j;
+      }
+    }
+    swap(vetor, i, posMaior);
+    swap(aux, i, posMaior);
+  }
+
+}
+
 void imprimirTabuleiro(int tabuleiro[9][9]) {
   for(int i = 0; i < 9; i++) {
     if(i != 0 && i % 3 == 0) printf("\n");
@@ -46,7 +80,7 @@ bool erroColuna(int tabuleiro[9][9], int coluna, int numero) {
 
 void imprimirRegiao(int tabuleiro[9][9], int lin, int col) {
   for(int i = lin / 3 * 3; i < lin / 3 * 3 + 3; i++) {
-    for(int j = col / 3 * 3; i < col / 3 * 3 + 3; i++) {
+    for(int j = col / 3 * 3; j < col / 3 * 3 + 3; j++) {
       if(tabuleiro[i][j] == 0) printf("_ ");
       else printf("%d ", tabuleiro[i][j]);
     }
@@ -75,22 +109,54 @@ bool temErro(int tabuleiro[9][9], int lin, int col, int numero) {
   return false;
 }
 
+bool temErroOtimizado(int tabuleiro[9][9], int lin, int col, int numero) {
+  for(int i = 0; i < 9; i++) {
+    if(tabuleiro[i][col] == numero) return true;
+    else if(tabuleiro[i][col] == numero) return true;
+  }
+}
+
 void solverSudoku(int tabuleiro[9][9]) {
+  int aux = 0;
+  int mais_vetor[9];
+  maisVezes(tabuleiro, mais_vetor);
   for(int i = 0; i < 9; i++) {
     for(int j = 0; j < 9; j++) {
       if(tabuleiro[i][j] == 0) {
-        for(int x = 9; x > 1; x--) {
-          if(temErro(tabuleiro, i, j, x) == false) {
-            tabuleiro[i][j] = x;
+        for(int x = 0; x < 9; x++) {
+          if(temErro(tabuleiro, i, j, mais_vetor[x]) == false) {
+            // aux = tabuleiro[i][j];
+            tabuleiro[i][j] = mais_vetor[x];
+            maisVezes(tabuleiro, mais_vetor);
             break;
-          }
+          } 
         }
       }
     }
   }
-
 }
 
+void solverSudoku2(int tabuleiro[9][9]) {
+  for(int ri = 0; ri < 9; ri+=3){
+    for(int rj = 0; rj < 9; rj+=3) {
+      // Aqui faz um loop em todas as regiões
+      // imprimirRegiao(tabuleiro, ri, rj);
+      // printf("\n");
+
+      for(int i = ri / 3 * 3; i < ri / 3 * 3 + 3; i++) {
+        for(int j = rj / 3 * 3; j < rj / 3 * 3 + 3; j++) {
+          if(tabuleiro[i][j] == 0) {
+            for(int i = 0; i < 9; i++) {
+              
+            }
+          }
+        }
+        printf("\n");
+      }
+
+    }
+  }
+}
 
 void pular() {
   printf("\n");
@@ -113,33 +179,30 @@ void main() {
     {0, 0, 0, 0, 8, 0, 0, 7, 9},
   };
 
-  int tabuleiro2[9][9][9];
+  int tabuleiro_medio[9][9] = {
+    {0, 0, 4, 0, 1, 0, 6, 0, 7},
+    {0, 7, 0, 0, 0, 0, 2, 5, 0},
+    {5, 0, 0, 0, 0, 0, 9, 1, 0},
+    {9, 6, 2, 0, 0, 1, 3, 0, 0},
+    {0, 0, 0, 0, 4, 0, 0, 0, 0},
+    {0, 0, 7, 2, 0, 6, 8, 0, 0},
+    {6, 0, 0, 0, 0, 2, 0, 0, 0},
+    {0, 4, 3, 0, 0, 8, 0, 0, 2},
+    {0, 0, 1, 7, 0, 0, 5, 0, 8},
+  };
 
-  for(int i = 0; i < 9; i++) {
-    for(int j = 0; j < 9; j++) {
-      for(int x = 0; x < 9; x++) {
-          tabuleiro2[i][j][x] = 0;
-      }
-      if(tabuleiro[i][j] != 0) {
-        tabuleiro2[i][j][ tabuleiro[i][j] - 1 ] = tabuleiro[i][j];
-      }
-    }
-  }
-
-  // for(int i = 0; i < 9; i++) {
-  //   for(int j = 0; j < 9; j++) {
-  //     printf("%d,%d  ", i,j);
-  //   }
-  //   printf("\n");
-  // }
-  imprimirTabuleiro(tabuleiro);
+  imprimirTabuleiro(tabuleiro_medio);
   pularlinha2();
-  solverSudoku(tabuleiro);
-  imprimirTabuleiro(tabuleiro);
-  solverSudoku(tabuleiro);
-  pularlinha2();
+  // solverSudoku(tabuleiro);
+  // imprimirTabuleiro(tabuleiro);
+  // solverSudoku(tabuleiro);
+  // pularlinha2();
+  // imprimirTabuleiro(tabuleiro);
+  // pularlinha2();
+  solverSudoku(tabuleiro_medio);
+  imprimirTabuleiro(tabuleiro_medio);
   // temErro(tabuleiro, 7, 7, 3) ? printf("tem erro\n") : printf("nao tem erro\n");
-  imprimirTabuleiro(tabuleiro);
+  // imprimirTabuleiro(tabuleiro);
   printf("\n");
 
 }
