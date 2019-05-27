@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <windows.h>
+#include <time.h>
 
 typedef enum {
   false = 0,
@@ -112,72 +114,127 @@ bool temErro(int tabuleiro[9][9], int lin, int col, int numero) {
 bool temErroOtimizado(int tabuleiro[9][9], int lin, int col, int numero) {
   for(int i = 0; i < 9; i++) {
     if(tabuleiro[i][col] == numero) return true;
-    else if(tabuleiro[i][col] == numero) return true;
+    if(tabuleiro[lin][i] == numero) return true;
   }
+  if(erroRegiao(tabuleiro, lin, col, numero)) return true;
+  return false;
 }
 
-void solverSudoku(int tabuleiro[9][9]) {
-  int aux = 0;
-  int mais_vetor[9];
-  maisVezes(tabuleiro, mais_vetor);
+bool completado(int tabuleiro[9][9]) {
+  // Retorna true caso o tabuleiro tenha terminado
   for(int i = 0; i < 9; i++) {
     for(int j = 0; j < 9; j++) {
       if(tabuleiro[i][j] == 0) {
-        for(int x = 0; x < 9; x++) {
-          if(temErro(tabuleiro, i, j, mais_vetor[x]) == false) {
-            // aux = tabuleiro[i][j];
-            tabuleiro[i][j] = mais_vetor[x];
-            maisVezes(tabuleiro, mais_vetor);
-            break;
-          } 
-        }
+        return false;
       }
     }
   }
+  return true;
 }
 
-void solverSudoku2(int tabuleiro[9][9]) {
+void solverSudoku(int tabuleiro[9][9]) {
+  int vetor[9];
+  int i, j;
   for(int ri = 0; ri < 9; ri+=3){
     for(int rj = 0; rj < 9; rj+=3) {
       // Aqui faz um loop em todas as regiões
       // imprimirRegiao(tabuleiro, ri, rj);
       // printf("\n");
+      for(int i = 0; i < 9; i++) vetor[i] = 0;
 
       for(int i = ri / 3 * 3; i < ri / 3 * 3 + 3; i++) {
         for(int j = rj / 3 * 3; j < rj / 3 * 3 + 3; j++) {
+
           if(tabuleiro[i][j] == 0) {
-            for(int i = 0; i < 9; i++) {
-              
+            for(int x = 0; x < 9; x++) {
+              if(temErro(tabuleiro, i, j, x+1) == false) {
+                vetor[x] += 1;
+              }
             }
           }
         }
-        printf("\n");
       }
-
+      for(int x = 0; x < 9; x++) {
+        if(vetor[x] == 1) {
+          for(int i = ri / 3 * 3; i < ri / 3 * 3 + 3; i++) {
+            for(int j = rj / 3 * 3; j < rj / 3 * 3 + 3; j++) {
+              if(tabuleiro[i][j] == 0) {
+                if(temErro(tabuleiro, i, j, x+1) == false) {
+                  tabuleiro[i][j] = x+1;
+                  return;
+                } 
+              }
+            }
+          }
+        }
+      }
     }
   }
-}
-
-void pular() {
-  printf("\n");
-}
-
-void pularlinha2() {
-  printf("\n\n");
+  
+  
 }
 
 void main() {
-  int tabuleiro[9][9] = {
-    {5, 3, 0, 0, 7, 0, 0, 0, 0},
-    {6, 0, 0, 1, 9, 5, 0, 0, 0},
-    {0, 9, 8, 0, 0, 0, 0, 6, 0},
-    {8, 0, 0, 0, 6, 0, 0, 0, 3},
-    {4, 0, 0, 8, 0, 3, 0, 0, 1},
-    {7, 0, 0, 0, 2, 0, 0, 0, 6},
-    {0, 6, 0, 0, 0, 0, 2, 8, 0},
-    {0, 0, 0, 4, 1, 9, 0, 0, 5},
-    {0, 0, 0, 0, 8, 0, 0, 7, 9},
-  };
+
+  // int tabuleiro[9][9] = {
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  // };
+
+  // int tabuleiro[9][9] = {
+  //   {5, 3, 0, 0, 7, 0, 0, 0, 0},
+  //   {6, 0, 0, 1, 9, 5, 0, 0, 0},
+  //   {0, 9, 8, 0, 0, 0, 0, 6, 0},
+  //   {8, 0, 0, 0, 6, 0, 0, 0, 3},
+  //   {4, 0, 0, 8, 0, 3, 0, 0, 1},
+  //   {7, 0, 0, 0, 2, 0, 0, 0, 6},
+  //   {0, 6, 0, 0, 0, 0, 2, 8, 0},
+  //   {0, 0, 0, 4, 1, 9, 0, 0, 5},
+  //   {0, 0, 0, 0, 8, 0, 0, 7, 9},
+  // };
+
+  // int tabuleiro[9][9] = {
+  //   {0, 8, 0, 0, 6, 0, 0, 0, 1},
+  //   {0, 0, 7, 0, 0, 1, 0, 0, 0},
+  //   {6, 0, 0, 4, 0, 9, 0, 8, 7},
+  //   {0, 0, 0, 0, 0, 0, 9, 4, 0},
+  //   {0, 4, 5, 0, 0, 0, 0, 0, 8},
+  //   {0, 0, 0, 0, 0, 0, 5, 0, 0},
+  //   {3, 0, 0, 0, 0, 0, 0, 9, 0},
+  //   {4, 2, 0, 0, 0, 0, 0, 0, 0},
+  //   {0, 0, 1, 2, 0, 0, 7, 0, 0},
+  // };
+
+ int tabuleiro[9][9] = {
+{2, 6, 0, 9, 0, 1, 0, 7, 3},
+{0, 3, 7, 5, 6, 0, 0, 0, 0},
+{0, 0, 1, 2, 0, 0, 4, 6, 9},
+{0, 0, 2, 8, 4, 0, 7, 0, 0},
+{5, 0, 8, 0, 9, 0, 2, 1, 4},
+{6, 0, 0, 0, 2, 7, 0, 0, 8},
+{0, 0, 9, 0, 0, 0, 6, 2, 7},
+{7, 0, 0, 0, 3, 9, 8, 4, 0},
+{0, 8, 0, 7, 0, 2, 0, 0, 0},
+};
+
+  // int tabuleiro[9][9] = {
+  //   {1, 5, 0, 6, 0, 3, 0, 2, 0},
+  //   {0, 0, 0, 0, 4, 0, 3, 7, 8},
+  //   {3, 0, 0, 0, 0, 8, 0, 0, 0},
+  //   {5, 1, 0, 0, 0, 0, 9, 0, 0},
+  //   {0, 0, 2, 0, 0, 0, 6, 1, 0},
+  //   {0, 0, 4, 3, 0, 0, 2, 0, 0},
+  //   {7, 3, 5, 8, 0, 0, 0, 0, 6},
+  //   {0, 8, 0, 0, 0, 0, 0, 4, 0},
+  //   {0, 6, 9, 0, 0, 0, 8, 0, 0},
+  // };
 
   int tabuleiro_medio[9][9] = {
     {0, 0, 4, 0, 1, 0, 6, 0, 7},
@@ -191,18 +248,26 @@ void main() {
     {0, 0, 1, 7, 0, 0, 5, 0, 8},
   };
 
-  imprimirTabuleiro(tabuleiro_medio);
-  pularlinha2();
-  // solverSudoku(tabuleiro);
-  // imprimirTabuleiro(tabuleiro);
-  // solverSudoku(tabuleiro);
-  // pularlinha2();
-  // imprimirTabuleiro(tabuleiro);
-  // pularlinha2();
-  solverSudoku(tabuleiro_medio);
-  imprimirTabuleiro(tabuleiro_medio);
+  imprimirTabuleiro(tabuleiro);
+  
+  while(completado(tabuleiro) != true) {
+    // Sleep(150);
+    // imprimirTabuleiro(tabuleiro);
+    solverSudoku(tabuleiro);
+    // printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    // imprimirTabuleiro(tabuleiro);
+    // imprimirTabuleiro(tabuleiro);
+  }
+
+
+  
+
+  imprimirTabuleiro(tabuleiro);
+  // imprimirTabuleiro(tabuleiro_medio);
+  
   // temErro(tabuleiro, 7, 7, 3) ? printf("tem erro\n") : printf("nao tem erro\n");
   // imprimirTabuleiro(tabuleiro);
+  // printf("\nTime elapsed: %f seconds\n", time_spent);
   printf("\n");
 
 }
